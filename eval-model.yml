@@ -1,0 +1,33 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+
+name: evaluate_model
+display_name: Evaluate Trained Pose Model
+description: Evaluate the model on the test set using PyTorch Lightning
+ 
+command: python main.py --model_dir ${{inputs.model_dir}} --data_dir ${{inputs.data_dir}} --batch_size ${{inputs.batch_size}} --device ${{inputs.device}}
+
+inputs:
+  data_dir:
+    type: uri_folder
+    mode: ro_mount
+  model_dir:
+    type: uri_folder
+    mode: ro_mount
+  batch_size:
+    type: integer
+    default: 32
+  device:
+    type: string
+    default: "cpu"
+
+settings:
+  default_datastore: azureml:workspaceblobstore
+  default_compute: azureml:cpu-cluster
+  continue_on_step_failure: false
+
+code: ./eval-model  
+
+environment: azureml:pose-training-env:8
+
+#compute: azureml:cpu-cluster  # Or GPU cluster if needed

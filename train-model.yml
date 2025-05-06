@@ -1,0 +1,66 @@
+#define the job to train the model
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+
+name: train_model
+display_name: Train Pose Model
+
+command: python main.py --data_dir ${{inputs.data_dir}} --max_pose_length ${{inputs.max_pose_length}} --batch_size ${{inputs.batch_size}} --codebook_size ${{inputs.codebook_size}} --num_codebooks ${{inputs.num_codebooks}} --num_layers ${{inputs.num_layers}} --lr ${{inputs.lr}} --steps ${{inputs.steps}} --device ${{inputs.device}} --model_dir ${{outputs.model_dir}} --loss_hand_weight ${{inputs.loss_hand_weight}}
+
+inputs:
+  data_dir:
+    type: uri_folder
+    mode: ro_mount
+  max_pose_length:
+    type: integer
+    default: 512
+  batch_size:
+    type: integer
+    default: 16
+  codebook_size:
+    type: integer
+    default: 1024
+  num_codebooks:
+    type: integer
+    default: 1
+  num_layers:
+    type: integer
+    default: 1
+  lr:
+    type: number
+    default: 0.0001
+  steps:
+    type: integer
+    default: 10  # Small number for debugging
+  device:
+    type: string
+    default: "cpu"
+  loss_hand_weight:
+    type: number
+    default: 1.0
+
+outputs:
+  model_dir:
+    type: uri_folder
+    mode: rw_mount
+
+code: ./train-model
+
+#distribution:
+#  type: pytorch
+#  process_count_per_instance: 1   # The number of processes per node to launch for the job, i.e. how many gpu's/cpu's to use for the training per vm
+
+resources:
+  instance_count: 1     # how many VMs to use, I will only use 1 but keeping this here if anyone want to reuse this
+
+settings:
+  default_datastore: azureml:workspaceblobstore
+  default_compute: azureml:cpu-cluster
+  continue_on_step_failure: false
+
+environment: azureml:pose-training-env:8  # @latest
+# use the created environment from env.yml instead, or perhaps create it here instead if possible
+# seems like i can maybe do environment: azureml:env_name:version   as long as i have registered it before 
+# so i guess run the env.yml with azure cli and then this
+
+

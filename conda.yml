@@ -1,0 +1,14 @@
+name: pydata
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pip
+  - pip:
+    - python-dotenv
+    - pose-format>=0.3.2
+    - vector-quantize-pytorch
+    - pytorch-lightning
+    - azure-ai-ml
+    - mlflow
+
